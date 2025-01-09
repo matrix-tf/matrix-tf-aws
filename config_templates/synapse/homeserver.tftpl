@@ -1,0 +1,35 @@
+server_name: ${server_name}
+pid_file: /data/homeserver.pid
+listeners:
+    - port: ${synapse_port}
+      tls: false
+      type: http
+      x_forwarded: true
+      resources:
+          - names: [client, federation]
+            compress: false
+database:
+    name: psycopg2
+    args:
+        host: ${db_host}
+        port: 5432
+        user: ${db_user}
+        password: ${db_user_pw}
+        dbname: ${db_name}
+log_config: /data/synapse.log.config
+media_store_path: /data/media_store
+registration_shared_secret: ${registration_shared_secret}
+report_stats: false
+macaroon_secret_key: ${macaroon_secret_key}
+form_secret: ${form_secret}
+signing_key_path: /data/synapse.signing.key
+trusted_key_servers:
+    - server_name: matrix.org
+enable_registration: true
+enable_registration_without_verification: true
+app_service_config_files:
+    - /data/doublepuppet-registration.yaml
+    - /data/discord-registration.yaml
+    - /data/signal-registration.yaml
+    - /data/telegram-registration.yaml
+    - /data/whatsapp-registration.yaml

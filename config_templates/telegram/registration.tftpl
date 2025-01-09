@@ -1,0 +1,17 @@
+id: telegram
+as_token: ${as_token}
+hs_token: ${hs_token}
+namespaces:
+    users:
+        - exclusive: true
+          regex: '@telegram_.*:${server_name_regex}'
+        - exclusive: true
+          regex: '@telegrambot:${server_name_regex}'
+    aliases:
+        - exclusive: true
+          regex: \#telegram_.*:${server_name_regex}
+url: http://telegram.${ecs_namespace}:${bridge_port}
+sender_localpart: 36ZzpjpB1RSrMJgggVILHzqouY4z9d1aZ7mJXG4opfjeWqiobhbiaqIUlCO-l1U1
+rate_limited: false
+de.sorunome.msc2409.push_ephemeral: true
+push_ephemeral: true

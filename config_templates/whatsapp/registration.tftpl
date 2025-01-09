@@ -1,0 +1,14 @@
+id: whatsapp
+url: http://whatsapp.${ecs_namespace}:${bridge_port}
+as_token: ${as_token}
+hs_token: ${hs_token}
+sender_localpart: CHHBXlcZyj1K0U1jb7qqg2gl2jltLlHf
+rate_limited: false
+namespaces:
+    users:
+        - regex: ^@whatsappbot:${server_name_regex}
+          exclusive: true
+        - regex: ^@whatsapp_.*:${server_name_regex}
+          exclusive: true
+de.sorunome.msc2409.push_ephemeral: true
+push_ephemeral: true

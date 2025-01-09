@@ -1,0 +1,14 @@
+id: discord
+url: http://discord.${ecs_namespace}:${bridge_port}
+as_token: ${as_token}
+hs_token: ${hs_token}
+sender_localpart: IyGaCdOlPDkkOTFJ05wKFyb6zVhBTMce
+rate_limited: false
+namespaces:
+    users:
+        - regex: ^@discordbot:${server_name_regex}
+          exclusive: true
+        - regex: ^@discord_.*:${server_name_regex}
+          exclusive: true
+de.sorunome.msc2409.push_ephemeral: true
+push_ephemeral: true
