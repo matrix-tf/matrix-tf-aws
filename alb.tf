@@ -16,8 +16,8 @@ resource "aws_lb" "application_lb" {
 
 resource "aws_lb_target_group" "service_target_group" {
   for_each = {
-    for name, service in var.services : name => service
-    if service.enabled
+    for service_name, service_def in var.services : service_name => service_def
+    if service_def.enabled
   }
 
   name        = "${each.key}-target-group"
@@ -45,29 +45,140 @@ resource "aws_lb_listener" "application_listener" {
   certificate_arn = aws_acm_certificate.self_signed_cert.arn
 
   default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.service_target_group["synapse"].arn
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Page Not Found"
+      status_code  = "404"
+    }
   }
 }
 
-resource "aws_lb_listener_rule" "service_listener_rule" {
+resource "aws_lb_listener_rule" "well_known_client" {
+  listener_arn = aws_lb_listener.application_listener.arn
+  priority     = 1
+
+  condition {
+    http_request_method {
+      values = ["GET"]
+    }
+    path_pattern {
+      values = ["/.well-known/matrix/client"]
+    }
+  }
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "application/json"
+      message_body = <<JSON
+{
+  "m.homeserver": {
+    "base_url": "https://${var.server_name}"
+  },
+  "m.identity_server": {
+    "base_url": "https://identity.example.com"
+  }
+}
+JSON
+      status_code  = "200"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "well_known_server" {
+  listener_arn = aws_lb_listener.application_listener.arn
+  priority     = 2
+
+  condition {
+    http_request_method {
+      values = ["GET"]
+    }
+    path_pattern {
+      values = ["/.well-known/matrix/server"]
+    }
+  }
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "application/json"
+      message_body = <<JSON
+{
+  "m.server": "${var.server_name}:443"
+}
+JSON
+      status_code  = "200"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "bridge_forwarding" {
   for_each = {
-    for name, service in var.services : name => service
-    if service.enabled
+    for service_name, service_def in var.services : service_name => service_def
+    if service_def.enabled && service_def.profile == "bridge"
   }
 
   listener_arn = aws_lb_listener.application_listener.arn
-  priority     = index(keys(var.services), each.key) + 1
+  priority     = index(keys(var.services), each.key) + 2
 
   condition {
     http_header {
-      http_header_name = "Service"
+      http_header_name = "Bridge"
       values           = [each.key]
+    }
+
+    path_pattern {
+      values = ["/_matrix/provision/*"]
     }
   }
 
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.service_target_group[each.key].arn
+  }
+}
+
+resource "aws_lb_listener_rule" "bridge_header_invalid_path" {
+  listener_arn = aws_lb_listener.application_listener.arn
+  priority = length([
+    for service_name, service_def in var.services :
+    service_name if service_def.enabled && service_def.profile == "bridge"
+  ]) + 3
+
+  condition {
+    http_header {
+      http_header_name = "Bridge"
+      values           = ["*"]
+    }
+  }
+
+  action {
+    type = "fixed-response"
+
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "404 Not Found"
+      status_code  = "404"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "matrix_forwarding" {
+  listener_arn = aws_lb_listener.application_listener.arn
+  priority     = 100
+
+  condition {
+    path_pattern {
+      values = ["/_matrix/*"]
+    }
+  }
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.service_target_group["synapse"].arn
   }
 }
