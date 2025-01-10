@@ -9,29 +9,29 @@ resource "aws_wafv2_web_acl" "web_acl" {
   description = "WAF for the application ALB"
 
   default_action {
-    block {}
+    allow {}
   }
 
-  rule {
-    name     = "AllowSpecificIPs"
-    priority = 0
+  # rule {
+  #   name     = "AllowSpecificIPs"
+  #   priority = 0
 
-    statement {
-      ip_set_reference_statement {
-        arn = aws_wafv2_ip_set.allowed_ips.arn
-      }
-    }
+  #   statement {
+  #     ip_set_reference_statement {
+  #       arn = aws_wafv2_ip_set.allowed_ips.arn
+  #     }
+  #   }
 
-    visibility_config {
-      cloudwatch_metrics_enabled = true
-      sampled_requests_enabled   = true
-      metric_name                = "allow-specific-ips"
-    }
+  #   visibility_config {
+  #     cloudwatch_metrics_enabled = true
+  #     sampled_requests_enabled   = true
+  #     metric_name                = "allow-specific-ips"
+  #   }
 
-    action {
-      allow {}
-    }
-  }
+  #   action {
+  #     allow {}
+  #   }
+  # }
 
   rule {
     name     = "AWSManagedRulesCommonRuleSet"
@@ -99,15 +99,15 @@ resource "aws_wafv2_web_acl" "web_acl" {
 }
 
 
-resource "aws_wafv2_ip_set" "allowed_ips" {
-  name        = "allowed-ips"
-  scope       = "REGIONAL"
-  description = "IP Set for allowing specific inbound traffic"
+# resource "aws_wafv2_ip_set" "allowed_ips" {
+#   name        = "allowed-ips"
+#   scope       = "REGIONAL"
+#   description = "IP Set for allowing specific inbound traffic"
 
-  addresses = var.alb_permitted_ips
+#   addresses = var.alb_permitted_ips
 
-  ip_address_version = "IPV4"
-}
+#   ip_address_version = "IPV4"
+# }
 
 resource "aws_wafv2_rule_group" "rate_limit_rules" {
   name        = "rate-limit-rule-group"

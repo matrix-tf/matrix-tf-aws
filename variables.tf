@@ -1,7 +1,7 @@
 variable "alb_permitted_ips" {
   description = "IPs permitted for inbound traffic"
   type        = list(string)
-  default     = ["142.190.40.178/32"]
+  default     = ["0.0.0.0/0"]
 }
 
 variable "aws_region" {
