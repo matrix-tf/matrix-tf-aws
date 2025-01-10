@@ -29,10 +29,23 @@ resource "aws_s3_bucket_policy" "alb_logs_bucket_policy" {
       {
         Effect = "Allow",
         Principal = {
-          AWS = "arn:aws:iam::${local.elb_account_id}:root"
+          AWS = "arn:aws:iam::${local.elb_account_id}:root",
         },
         Action   = "s3:PutObject",
         Resource = "${aws_s3_bucket.alb_logs_bucket.arn}/alb-logs/AWSLogs/${local.aws_account_id}/*",
+      },
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "logdelivery.elb.amazonaws.com"
+        },
+        Action   = "s3:PutObject",
+        Resource = "${aws_s3_bucket.alb_logs_bucket.arn}/alb-logs/AWSLogs/${local.aws_account_id}/*",
+        Condition = {
+          StringEquals = {
+            "s3:x-amz-acl" : "bucket-owner-full-control"
+          }
+        }
       }
     ]
   })

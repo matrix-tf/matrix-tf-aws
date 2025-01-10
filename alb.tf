@@ -42,7 +42,7 @@ resource "aws_lb_listener" "application_listener" {
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
 
-  certificate_arn = aws_acm_certificate.self_signed_cert.arn
+  certificate_arn = aws_acm_certificate.main_cert.arn
 
   default_action {
     type = "fixed-response"
@@ -53,6 +53,8 @@ resource "aws_lb_listener" "application_listener" {
       status_code  = "404"
     }
   }
+
+  depends_on = [aws_acm_certificate_validation.main_cert_validation]
 }
 
 resource "aws_lb_listener_rule" "well_known_client" {
@@ -63,6 +65,9 @@ resource "aws_lb_listener_rule" "well_known_client" {
     http_request_method {
       values = ["GET"]
     }
+  }
+
+  condition {
     path_pattern {
       values = ["/.well-known/matrix/client"]
     }
@@ -96,6 +101,9 @@ resource "aws_lb_listener_rule" "well_known_server" {
     http_request_method {
       values = ["GET"]
     }
+  }
+
+  condition {
     path_pattern {
       values = ["/.well-known/matrix/server"]
     }
@@ -123,14 +131,16 @@ resource "aws_lb_listener_rule" "bridge_forwarding" {
   }
 
   listener_arn = aws_lb_listener.application_listener.arn
-  priority     = index(keys(var.services), each.key) + 2
+  priority     = index(keys(var.services), each.key) + 3
 
   condition {
     http_header {
       http_header_name = "Bridge"
       values           = [each.key]
     }
+  }
 
+  condition {
     path_pattern {
       values = ["/_matrix/provision/*"]
     }
@@ -147,7 +157,7 @@ resource "aws_lb_listener_rule" "bridge_header_invalid_path" {
   priority = length([
     for service_name, service_def in var.services :
     service_name if service_def.enabled && service_def.profile == "bridge"
-  ]) + 3
+  ]) + 4
 
   condition {
     http_header {
