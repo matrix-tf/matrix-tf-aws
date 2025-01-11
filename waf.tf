@@ -9,33 +9,74 @@ resource "aws_wafv2_web_acl" "web_acl" {
   description = "WAF for the application ALB"
 
   default_action {
-    allow {}
+    block {}
   }
 
-  # rule {
-  #   name     = "AllowSpecificIPs"
-  #   priority = 0
+  rule {
+    name     = "AllowBridgeProvisioning"
+    priority = 0
 
-  #   statement {
-  #     ip_set_reference_statement {
-  #       arn = aws_wafv2_ip_set.allowed_ips.arn
-  #     }
-  #   }
+    statement {
+      byte_match_statement {
+        search_string = "/_matrix/provision/"
+        field_to_match {
+          uri_path {}
+        }
 
-  #   visibility_config {
-  #     cloudwatch_metrics_enabled = true
-  #     sampled_requests_enabled   = true
-  #     metric_name                = "allow-specific-ips"
-  #   }
+        text_transformation {
+          priority = 0
+          type     = "NONE"
+        }
 
-  #   action {
-  #     allow {}
-  #   }
-  # }
+        positional_constraint = "CONTAINS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      sampled_requests_enabled   = true
+      metric_name                = "allow-bridge-provisioning"
+    }
+
+    action {
+      allow {}
+    }
+  }
+
+  rule {
+    name     = "AllowMatrixAPI"
+    priority = 1
+
+    statement {
+      byte_match_statement {
+        search_string = "/_matrix/"
+        field_to_match {
+          uri_path {}
+        }
+
+        text_transformation {
+          priority = 0
+          type     = "NONE"
+        }
+
+        positional_constraint = "CONTAINS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      sampled_requests_enabled   = true
+      metric_name                = "allow-matrix-api"
+    }
+
+    action {
+      allow {}
+    }
+  }
 
   rule {
     name     = "AWSManagedRulesCommonRuleSet"
-    priority = 1
+    priority = 2
 
     statement {
       managed_rule_group_statement {
@@ -72,7 +113,7 @@ resource "aws_wafv2_web_acl" "web_acl" {
 
   rule {
     name     = "RateLimitRuleGroup"
-    priority = 2
+    priority = 3
 
     statement {
       rule_group_reference_statement {
@@ -97,17 +138,6 @@ resource "aws_wafv2_web_acl" "web_acl" {
     metric_name                = "application-waf"
   }
 }
-
-
-# resource "aws_wafv2_ip_set" "allowed_ips" {
-#   name        = "allowed-ips"
-#   scope       = "REGIONAL"
-#   description = "IP Set for allowing specific inbound traffic"
-
-#   addresses = var.alb_permitted_ips
-
-#   ip_address_version = "IPV4"
-# }
 
 resource "aws_wafv2_rule_group" "rate_limit_rules" {
   name        = "rate-limit-rule-group"
