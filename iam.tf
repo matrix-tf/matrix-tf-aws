@@ -28,9 +28,13 @@ resource "aws_iam_role_policy" "services_policy" {
         Action = [
           "s3:ListObjectsV2",
           "s3:GetObject",
+          "s3:ListBucket",
           "s3:PutObject"
         ],
-        Resource = "${aws_s3_bucket.configs_bucket.arn}/*"
+        Resource = [
+          "${aws_s3_bucket.configs_bucket.arn}",
+          "${aws_s3_bucket.configs_bucket.arn}/*"
+        ]
       },
       {
         Effect = "Allow",

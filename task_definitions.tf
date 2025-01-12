@@ -25,6 +25,26 @@ resource "aws_ecs_task_definition" "service_task" {
 
   container_definitions = jsonencode([
     {
+      name      = "${each.key}-s3-sync"
+      image     = "amazon/aws-cli:2.22.33"
+      essential = false
+      command   = ["s3", "sync", "s3://${aws_s3_bucket.configs_bucket.bucket}/${each.key}", "/aws", "--region", "${var.aws_region}"]
+      mountPoints = [
+        {
+          sourceVolume  = "${each.key}-config"
+          containerPath = "/aws"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = aws_cloudwatch_log_group.ecs_log_group.name
+          "awslogs-region"        = var.aws_region
+          "awslogs-stream-prefix" = "${each.key}-s3-sync"
+        }
+      }
+    },
+    {
       name      = "${each.key}-init"
       image     = "postgres:15"
       essential = false
@@ -90,6 +110,12 @@ resource "aws_ecs_task_definition" "service_task" {
         {
           sourceVolume  = "${each.key}-config"
           containerPath = "/data"
+        }
+      ]
+      dependsOn = [
+        {
+          containerName = "${each.key}-s3-sync"
+          condition     = "SUCCESS"
         }
       ]
       logConfiguration = {
