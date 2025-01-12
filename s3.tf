@@ -102,7 +102,6 @@ resource "aws_s3_bucket_policy" "configs_bucket_policy" {
         Principal = {
           AWS = [
             aws_iam_role.services_role.arn,
-            aws_iam_role.datasync_role.arn
           ]
         }
         Action = [

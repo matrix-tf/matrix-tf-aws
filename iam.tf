@@ -54,67 +54,6 @@ resource "aws_iam_role_policy" "services_policy" {
   })
 }
 
-## DataSync
-resource "aws_iam_role" "datasync_role" {
-  name = "datasync-role"
-
-  assume_role_policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Action" : "sts:AssumeRole",
-        "Principal" : {
-          "Service" : "datasync.amazonaws.com"
-        },
-        "Effect" : "Allow",
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "datasync_policy" {
-  role = aws_iam_role.datasync_role.name
-  name = "datasync-policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket",
-          "s3:ListObjectsV2",
-          "s3:GetBucketLocation",
-          "s3:HeadObject"
-        ],
-        Resource = [
-          "${aws_s3_bucket.configs_bucket.arn}",
-          "${aws_s3_bucket.configs_bucket.arn}/*"
-        ]
-      },
-      {
-        Effect = "Allow",
-        Action = [
-          "elasticfilesystem:ClientMount",
-          "elasticfilesystem:ClientWrite",
-          "elasticfilesystem:DescribeMountTargets",
-          "elasticfilesystem:DescribeAccessPoints"
-        ],
-        Resource = aws_efs_file_system.matrix_efs_configs.arn
-      },
-      {
-        Effect = "Allow",
-        Action = [
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        Resource = "${aws_cloudwatch_log_group.datasync_log_group.arn}:*"
-      },
-    ]
-  })
-}
-
 ## ECS State Machine
 resource "aws_iam_role" "ecs_manager_state_machine_role" {
   name = "ecs-manager-state-machine-role"
@@ -146,8 +85,6 @@ resource "aws_iam_role_policy" "ecs_manager_state_machine_policy" {
       {
         Effect = "Allow",
         Action = [
-          "datasync:StartTaskExecution",
-          "datasync:DescribeTaskExecution",
           "s3:ListBucket",
           "sqs:SendMessage",
           "ecs:ListServices",
@@ -155,8 +92,6 @@ resource "aws_iam_role_policy" "ecs_manager_state_machine_policy" {
           "states:StartExecution"
         ],
         Resource = [
-          aws_datasync_task.s3_to_efs_task.arn,
-          "${aws_datasync_task.s3_to_efs_task.arn}/execution/*",
           aws_sqs_queue.ecs_manager_state_machine_dlq.arn,
           aws_sfn_state_machine.ecs_manager_state_machine.arn,
           aws_s3_bucket.configs_bucket.arn,

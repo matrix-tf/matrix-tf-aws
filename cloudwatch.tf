@@ -4,33 +4,6 @@ resource "aws_cloudwatch_log_group" "ecs_log_group" {
   retention_in_days = 30
 }
 
-## DataSync
-resource "aws_cloudwatch_log_group" "datasync_log_group" {
-  name              = "datasync-logs"
-  retention_in_days = 30
-}
-
-resource "aws_cloudwatch_log_resource_policy" "datasync_log_policy" {
-  policy_name = "datasync-log-permissions"
-
-  policy_document = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect : "Allow",
-        Principal : {
-          Service : "datasync.amazonaws.com"
-        },
-        Action : [
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        Resource = "${aws_cloudwatch_log_group.datasync_log_group.arn}:*"
-      }
-    ]
-  })
-}
-
 ## EventBridge
 resource "aws_cloudwatch_log_group" "eventbridge_log_group" {
   name              = "eventbridge-logs"

@@ -105,7 +105,6 @@ resource "aws_security_group" "efs_sg" {
     protocol  = "tcp"
     security_groups = [
       aws_security_group.services_sg.id,
-      aws_security_group.datasync_sg.id,
     ]
   }
 
@@ -114,26 +113,5 @@ resource "aws_security_group" "efs_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-## DataSync SG
-resource "aws_security_group" "datasync_sg" {
-  vpc_id      = aws_vpc.main.id
-  name        = "datasync-sg"
-  description = "DataSync Security Group"
-
-  tags = {
-    Name = "datasync-sg"
-  }
-
-  egress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    cidr_blocks = [
-      aws_vpc.main.cidr_block,
-      "169.254.0.0/16" # AWS services (via VPC endpoints)
-    ]
   }
 }

@@ -3,71 +3,9 @@ resource "aws_sfn_state_machine" "ecs_manager_state_machine" {
   role_arn = aws_iam_role.ecs_manager_state_machine_role.arn
 
   definition = jsonencode({
-    Comment = "State machine to start DataSync task & sync Configs bucket directories to ECS services",
-    StartAt = "StartDataSyncTask",
+    Comment = "State machine to start and stop ECS services",
+    StartAt = "ListEcsServices",
     States = {
-      StartDataSyncTask = {
-        Type     = "Task",
-        Resource = "arn:aws:states:::aws-sdk:datasync:startTaskExecution",
-        Parameters = {
-          TaskArn = aws_datasync_task.s3_to_efs_task.arn
-        },
-        ResultSelector = {
-          "TaskExecutionArn.$" = "$.TaskExecutionArn"
-        },
-        ResultPath = "$.TaskExecution",
-        Catch = [
-          {
-            ErrorEquals = ["States.ALL"],
-            ResultPath  = "$.error",
-            Next        = "SendErrorToSqs"
-          }
-        ],
-        Next = "PollDataSyncTask"
-      },
-      PollDataSyncTask = {
-        Type     = "Task",
-        Resource = "arn:aws:states:::aws-sdk:datasync:describeTaskExecution",
-        Parameters = {
-          "TaskExecutionArn.$" = "$.TaskExecution.TaskExecutionArn"
-        },
-        TimeoutSeconds = 300,
-        ResultPath     = "$.TaskStatus",
-        Catch = [
-          {
-            ErrorEquals = ["States.Timeout"],
-            ResultPath  = "$.error",
-            Next        = "SendErrorToSqs"
-          },
-          {
-            ErrorEquals = ["States.ALL"],
-            ResultPath  = "$.error",
-            Next        = "SendErrorToSqs"
-          }
-        ]
-        Next = "CheckTaskCompletion",
-      },
-      CheckTaskCompletion = {
-        Type = "Choice",
-        Choices = [
-          {
-            Variable     = "$.TaskStatus.Status",
-            StringEquals = "SUCCESS",
-            Next         = "ListEcsServices"
-          },
-          {
-            Variable     = "$.TaskStatus.Status",
-            StringEquals = "ERROR",
-            Next         = "SendErrorToSqs"
-          }
-        ],
-        Default = "WaitBeforeRetry"
-      },
-      WaitBeforeRetry = {
-        Type    = "Wait",
-        Seconds = 5,
-        Next    = "PollDataSyncTask"
-      },
       ListEcsServices = {
         Type     = "Task",
         Resource = "arn:aws:states:::aws-sdk:ecs:listServices",
