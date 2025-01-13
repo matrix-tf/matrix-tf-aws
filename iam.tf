@@ -90,9 +90,12 @@ resource "aws_iam_role_policy" "ecs_manager_state_machine_policy" {
         Effect = "Allow",
         Action = [
           "s3:ListBucket",
+          "s3:GetObject",
           "sqs:SendMessage",
           "ecs:ListServices",
+          "ecs:ListTagsForResource",
           "ecs:UpdateService",
+          "ecs:TagResource",
           "states:StartExecution"
         ],
         Resource = [

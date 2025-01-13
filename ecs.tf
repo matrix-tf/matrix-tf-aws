@@ -31,6 +31,10 @@ resource "aws_ecs_service" "service" {
     registry_arn = aws_service_discovery_service.services[each.key].arn
   }
 
+  tags = {
+    ConfigsHash = "null"
+  }
+
   lifecycle {
     ignore_changes = [
       desired_count

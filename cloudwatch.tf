@@ -56,6 +56,19 @@ resource "aws_cloudwatch_event_target" "ecs_manager_state_machine_target" {
   arn       = aws_sfn_state_machine.ecs_manager_state_machine.arn
   role_arn  = aws_iam_role.ecs_manager_state_machine_role.arn
 
+  input_transformer {
+    input_paths = {
+      "key"  = "$.detail.object.key"
+      "etag" = "$.detail.object.eTag"
+    }
+    input_template = <<EOF
+{
+  "Key": "<key>",
+  "ETag": "<etag>"
+}
+EOF
+  }
+
   retry_policy {
     maximum_retry_attempts       = 10
     maximum_event_age_in_seconds = 3600
