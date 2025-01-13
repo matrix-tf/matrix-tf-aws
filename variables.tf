@@ -62,10 +62,10 @@ variable "services" {
 
   default = {
     synapse  = { enabled = true, port = 8008, image = "matrixdotorg/synapse", version = "v1.121.1", health_check = "/health", profile = "synapse" }
-    discord  = { enabled = true, port = 29316, image = "dock.mau.dev/mautrix/discord", version = "v0.7.2", health_check = "/_matrix/mau/live", profile = "bridge" }
-    signal   = { enabled = true, port = 29317, image = "dock.mau.dev/mautrix/signal", version = "v0.7.4", health_check = "/_matrix/mau/live", profile = "bridge" }
-    telegram = { enabled = true, port = 29318, image = "dock.mau.dev/mautrix/telegram", version = "v0.15.2", health_check = "/_matrix/mau/live", profile = "bridge" }
-    whatsapp = { enabled = true, port = 29319, image = "dock.mau.dev/mautrix/whatsapp", version = "v0.11.2", health_check = "/_matrix/mau/live", profile = "bridge" }
+    discord  = { enabled = false, port = 29316, image = "dock.mau.dev/mautrix/discord", version = "v0.7.2", health_check = "/_matrix/mau/live", profile = "bridge" }
+    signal   = { enabled = false, port = 29317, image = "dock.mau.dev/mautrix/signal", version = "v0.7.4", health_check = "/_matrix/mau/live", profile = "bridge" }
+    telegram = { enabled = false, port = 29318, image = "dock.mau.dev/mautrix/telegram", version = "v0.15.2", health_check = "/_matrix/mau/live", profile = "bridge" }
+    whatsapp = { enabled = false, port = 29319, image = "dock.mau.dev/mautrix/whatsapp", version = "v0.11.2", health_check = "/_matrix/mau/live", profile = "bridge" }
   }
 
   validation {
