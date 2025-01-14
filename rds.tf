@@ -11,6 +11,7 @@ resource "aws_db_instance" "matrix_db" {
   db_subnet_group_name        = aws_db_subnet_group.main.id
   publicly_accessible         = false
   skip_final_snapshot         = true
+  storage_encrypted           = true
 }
 
 resource "aws_db_subnet_group" "main" {
