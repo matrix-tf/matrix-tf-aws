@@ -108,6 +108,34 @@ resource "aws_sfn_state_machine" "ecs_manager_state_machine" {
                 Service      = "$.Name",
                 DesiredCount = 0
               },
+              Next = "StopAllEcsServicesResetConfigsHash"
+            },
+            StopAllEcsServicesResetConfigsHash = {
+              Type     = "Task",
+              Resource = "arn:aws:states:::aws-sdk:ecs:tagResource",
+              Parameters = {
+                "ResourceArn.$" = "$.Arn",
+                Tags = [
+                  {
+                    Key   = "ConfigsHash",
+                    Value = ""
+                  }
+                ]
+              },
+              Catch = [
+                {
+                  ErrorEquals = ["States.ALL"],
+                  ResultPath  = "$.error",
+                  Next        = "HandleStopAllEcsServicesError"
+                }
+              ],
+              End = true
+            },
+            HandleStopAllEcsServicesError = {
+              Type = "Pass",
+              Parameters = {
+                "error.$" = "$.error"
+              },
               End = true
             }
           }
@@ -248,7 +276,7 @@ resource "aws_sfn_state_machine" "ecs_manager_state_machine" {
                 "ResourceArn.$" : "$.Service.Arn"
               },
               ResultSelector = {
-                "Tags.$" : "$.Tags[*]"
+                "ConfigsHash.$" = "States.ArrayGetItem($.Tags[?(@.Key=='ConfigsHash')].Value, 0)"
               },
               ResultPath = "$.ServiceTags",
               Catch = [
@@ -264,9 +292,9 @@ resource "aws_sfn_state_machine" "ecs_manager_state_machine" {
               Type = "Choice",
               Choices = [
                 {
-                  Variable     = "$.CurrentHash.CombinedHash",
-                  StringEquals = "$.ServiceDetails.Tags[?(@.key=='ConfigsHash')].value",
-                  Next         = "SkipServiceUpdate"
+                  Variable         = "$.CurrentHash.CombinedHash",
+                  StringEqualsPath = "$.ServiceTags.ConfigsHash",
+                  Next             = "SkipServiceUpdate"
                 }
               ],
               Default = "UpdateService"
@@ -291,9 +319,9 @@ resource "aws_sfn_state_machine" "ecs_manager_state_machine" {
                   Next        = "HandleServiceError"
                 }
               ],
-              Next = "TagService"
+              Next = "SetConfigsHash"
             },
-            TagService = {
+            SetConfigsHash = {
               Type     = "Task",
               Resource = "arn:aws:states:::aws-sdk:ecs:tagResource",
               Parameters = {
@@ -333,7 +361,28 @@ resource "aws_sfn_state_machine" "ecs_manager_state_machine" {
                   Next        = "HandleServiceError"
                 }
               ],
-              End = true,
+              Next = "ResetConfigsHash",
+            },
+            ResetConfigsHash = {
+              Type     = "Task",
+              Resource = "arn:aws:states:::aws-sdk:ecs:tagResource",
+              Parameters = {
+                "ResourceArn.$" = "$.Service.Arn",
+                Tags = [
+                  {
+                    Key   = "ConfigsHash",
+                    Value = ""
+                  }
+                ]
+              },
+              Catch = [
+                {
+                  ErrorEquals = ["States.ALL"],
+                  ResultPath  = "$.error",
+                  Next        = "HandleServiceError"
+                }
+              ],
+              End = true
             },
             HandleServiceError = {
               Type = "Pass",

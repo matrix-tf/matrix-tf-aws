@@ -32,12 +32,13 @@ resource "aws_ecs_service" "service" {
   }
 
   tags = {
-    ConfigsHash = "null"
+    ConfigsHash = ""
   }
 
   lifecycle {
     ignore_changes = [
-      desired_count
+      desired_count,
+      tags
     ]
   }
 }
