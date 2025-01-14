@@ -52,6 +52,8 @@ locals {
       }, service_name == "telegram" ? {
       api_id   = var.telegram_app_registration.id
       api_hash = var.telegram_app_registration.hash
+      } : {}, service_name == "signal" ? {
+      pickle_key = aws_secretsmanager_secret_version.pickle_key_secret_value.secret_string
     } : {}))
     if service_def.enabled && service_def.profile == "bridge"
   }

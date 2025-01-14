@@ -1,3 +1,4 @@
+# Suffix
 resource "random_id" "suffix" {
   byte_length = 4
 }
@@ -7,7 +8,7 @@ resource "random_password" "profile_user_password" {
   for_each         = aws_secretsmanager_secret.profile_user_password
   length           = 16
   special          = true
-  override_special = "!@#$*_+-="
+  override_special = "~!@#$%^&*()-_=+[]{}<>?"
 }
 
 # Homeserver 
@@ -58,4 +59,11 @@ resource "random_password" "doublepuppet_as_token" {
 resource "random_password" "doublepuppet_hs_token" {
   length  = 32
   special = false
+}
+
+# Signal
+resource "random_password" "signal_pickle_key" {
+  length           = 64
+  special          = true
+  override_special = "!@#$%^&*()-_=+[]{}<>?"
 }
