@@ -2,7 +2,7 @@
 resource "aws_secretsmanager_secret" "profile_user_password" {
   for_each = local.profiles
 
-  name        = "${each.key}-user-password"
+  name        = "${each.key}-user-password-${random_id.suffix.hex}"
   description = "Password for the ${local.profile_capitalize[each.key]} postgres user"
 }
 
@@ -15,7 +15,7 @@ resource "aws_secretsmanager_secret_version" "profile_user_password" {
 
 # Signal
 resource "aws_secretsmanager_secret" "pickle_key_secret" {
-  name        = "signal-pickle-key"
+  name        = "signal-pickle-key-${random_id.suffix.hex}"
   description = "Pickle key for Signal bridge"
 }
 
