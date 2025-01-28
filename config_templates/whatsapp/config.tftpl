@@ -431,7 +431,7 @@ bridge:
         prefix: /_matrix/provision
         # Shared secret for authentication. If set to "generate", a random secret will be generated,
         # or if set to "disable", the provisioning API will be disabled.
-        shared_secret: aDrRbFcIcgk8zHDAkZorafGcC1feiEafTXbjit0OfyfDGUWSCAWbz7X4ODX5BVYU
+        shared_secret: ${provisioning_shared_secret}
         # Enable debug API at /debug with provisioning authentication.
         debug_endpoints: true
 

@@ -13,7 +13,7 @@ resource "random_password" "profile_user_password" {
 
 # Homeserver 
 resource "random_password" "registration_shared_secret" {
-  length  = 32
+  length  = 64
   special = false
 }
 
@@ -23,7 +23,7 @@ resource "random_password" "macaroon_secret_key" {
 }
 
 resource "random_password" "form_secret" {
-  length  = 32
+  length  = 64
   special = false
 }
 
@@ -35,7 +35,7 @@ resource "random_password" "bridge_as_token" {
     if svc.profile == "bridge"
   }
 
-  length  = 32
+  length  = 64
   special = false
 }
 
@@ -46,18 +46,29 @@ resource "random_password" "bridge_hs_token" {
     if svc.profile == "bridge"
   }
 
-  length  = 32
+  length  = 64
+  special = false
+}
+
+resource "random_password" "bridge_prov_shared_secret" {
+  for_each = {
+    for name, svc in var.services :
+    name => svc
+    if svc.profile == "bridge"
+  }
+
+  length  = 64
   special = false
 }
 
 # Double-puppet
 resource "random_password" "doublepuppet_as_token" {
-  length  = 32
+  length  = 64
   special = false
 }
 
 resource "random_password" "doublepuppet_hs_token" {
-  length  = 32
+  length  = 64
   special = false
 }
 

@@ -253,7 +253,7 @@ provisioning:
     prefix: /_matrix/provision
     # Shared secret for authentication. If set to "generate" or null, a random secret will be generated,
     # or if set to "disable", the provisioning API will be disabled.
-    shared_secret: ck4Z8WozydiYdtl0cky5ZzthDkhGL7o60y3rTeJ5TmIqVpeRS6FpId6lRX6MVAIT
+    shared_secret: ${provisioning_shared_secret}
     # Whether to allow provisioning API requests to be authed using Matrix access tokens.
     # This follows the same rules as double puppeting to determine which server to contact to check the token,
     # which means that by default, it only works for users on the same server as the bridge.

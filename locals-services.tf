@@ -38,17 +38,18 @@ locals {
   bridge_config_outputs = {
     for service_name, service_def in var.services :
     service_name => templatefile("${path.module}/config_templates/${service_name}/config.tftpl", merge({
-      server_name           = local.server_name
-      synapse_port          = var.services.synapse.port
-      bridge_port           = service_def.port
-      db_user               = service_def.profile
-      db_user_pw            = urlencode(aws_secretsmanager_secret_version.profile_user_password[service_def.profile].secret_string)
-      db_host               = aws_rds_cluster.matrix_aurora.endpoint
-      db_name               = service_name
-      ecs_namespace         = aws_service_discovery_private_dns_namespace.ecs_namespace.name
-      as_token              = random_password.bridge_as_token[service_name].result
-      hs_token              = random_password.bridge_hs_token[service_name].result
-      doublepuppet_as_token = random_password.doublepuppet_as_token.result
+      server_name                = local.server_name
+      synapse_port               = var.services.synapse.port
+      bridge_port                = service_def.port
+      db_user                    = service_def.profile
+      db_user_pw                 = urlencode(aws_secretsmanager_secret_version.profile_user_password[service_def.profile].secret_string)
+      db_host                    = aws_rds_cluster.matrix_aurora.endpoint
+      db_name                    = service_name
+      ecs_namespace              = aws_service_discovery_private_dns_namespace.ecs_namespace.name
+      as_token                   = random_password.bridge_as_token[service_name].result
+      hs_token                   = random_password.bridge_hs_token[service_name].result
+      provisioning_shared_secret = random_password.bridge_prov_shared_secret[service_name].result
+      doublepuppet_as_token      = random_password.doublepuppet_as_token.result
       }, service_name == "telegram" ? {
       api_id   = var.telegram_app_registration.id
       api_hash = var.telegram_app_registration.hash
