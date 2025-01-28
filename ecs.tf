@@ -42,3 +42,9 @@ resource "aws_ecs_service" "service" {
     ]
   }
 }
+
+resource "null_resource" "ecs_services_ready" {
+  triggers = {
+    services = join(",", [for s in keys(aws_ecs_service.service) : aws_ecs_service.service[s].id])
+  }
+}

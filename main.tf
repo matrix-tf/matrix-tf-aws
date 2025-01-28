@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.77.0"
+      version = "~> 5.84.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -23,4 +23,8 @@ provider "aws" {
   region     = var.aws_region
   access_key = var.aws_credentials.access_key
   secret_key = var.aws_credentials.secret_key
+}
+
+data "aws_availability_zones" "available" {
+  state = "available"
 }

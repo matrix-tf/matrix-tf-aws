@@ -17,7 +17,7 @@ locals {
     synapse_port               = var.services.synapse.port
     db_user                    = var.services.synapse.profile
     db_user_pw                 = aws_secretsmanager_secret_version.profile_user_password[var.services.synapse.profile].secret_string
-    db_host                    = aws_db_instance.matrix_db.address
+    db_host                    = aws_rds_cluster.matrix_aurora.endpoint
     db_name                    = var.services.synapse.profile
     registration_shared_secret = random_password.registration_shared_secret.result
     macaroon_secret_key        = random_password.macaroon_secret_key.result
@@ -43,7 +43,7 @@ locals {
       bridge_port           = service_def.port
       db_user               = service_def.profile
       db_user_pw            = urlencode(aws_secretsmanager_secret_version.profile_user_password[service_def.profile].secret_string)
-      db_host               = aws_db_instance.matrix_db.address
+      db_host               = aws_rds_cluster.matrix_aurora.endpoint
       db_name               = service_name
       ecs_namespace         = aws_service_discovery_private_dns_namespace.ecs_namespace.name
       as_token              = random_password.bridge_as_token[service_name].result

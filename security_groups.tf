@@ -64,14 +64,14 @@ resource "aws_security_group_rule" "alb_to_services_ingress" {
   source_security_group_id = aws_security_group.application_lb_sg.id
 }
 
-## RDS SG
-resource "aws_security_group" "rds_sg" {
+## Aurora SG
+resource "aws_security_group" "aurora_sg" {
   vpc_id      = aws_vpc.main.id
-  name        = "rds-sg"
-  description = "RDS Security Group"
+  name        = "aurora-sg"
+  description = "Aurora Security Group"
 
   tags = {
-    Name = "rds-sg"
+    Name = "aurora-sg"
   }
 
   ingress {

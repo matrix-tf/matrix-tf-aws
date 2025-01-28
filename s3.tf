@@ -82,7 +82,11 @@ resource "aws_s3_object" "config_and_reg_files" {
   content_type = "text/yaml"
   acl          = "private"
   etag         = md5(each.value)
-  depends_on   = [aws_sfn_state_machine.ecs_manager_state_machine]
+  depends_on = [
+    aws_sfn_state_machine.ecs_manager_state_machine,
+    aws_rds_cluster_instance.matrix_aurora_instance,
+    null_resource.ecs_services_ready
+  ]
 }
 
 resource "aws_s3_bucket_notification" "configs_bucket_to_eventbridge" {

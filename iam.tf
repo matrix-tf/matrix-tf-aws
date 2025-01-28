@@ -50,7 +50,7 @@ resource "aws_iam_role_policy" "services_policy" {
           "secretsmanager:GetSecretValue"
         ]
         Resource = concat(
-          [aws_db_instance.matrix_db.master_user_secret[0].secret_arn],
+          [aws_rds_cluster.matrix_aurora.master_user_secret[0].secret_arn],
           values(aws_secretsmanager_secret.profile_user_password)[*].arn
         )
       }

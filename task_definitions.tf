@@ -50,8 +50,8 @@ resource "aws_ecs_task_definition" "service_task" {
       essential = false
       secrets = [
         {
-          name      = "RDS_CREDS"
-          valueFrom = aws_db_instance.matrix_db.master_user_secret[0].secret_arn
+          name      = "AURORA_CREDS"
+          valueFrom = aws_rds_cluster.matrix_aurora.master_user_secret[0].secret_arn
         },
         {
           name      = "PROFILE_USER_PASSWORD"
@@ -61,7 +61,7 @@ resource "aws_ecs_task_definition" "service_task" {
       environment = [
         { name = "POSTGRES_PASSWORD", value = "postgres" },
         { name = "POSTGRES_USER", value = "postgres" },
-        { name = "PGHOST", value = aws_db_instance.matrix_db.address },
+        { name = "PGHOST", value = aws_rds_cluster.matrix_aurora.endpoint },
         { name = "PGSSLMODE", value = "require" },
       ]
       command = [
@@ -70,8 +70,8 @@ resource "aws_ecs_task_definition" "service_task" {
           set -euo pipefail
 
           # Extract username and password from JSON
-          PGUSER=$(echo "$RDS_CREDS" | grep -o '"username":"[^"]*' | cut -d'"' -f4)
-          PGPASSWORD=$(echo "$RDS_CREDS" | grep -o '"password":"[^"]*' | cut -d'"' -f4)
+          PGUSER=$(echo "$AURORA_CREDS" | grep -o '"username":"[^"]*' | cut -d'"' -f4)
+          PGPASSWORD=$(echo "$AURORA_CREDS" | grep -o '"password":"[^"]*' | cut -d'"' -f4)
           export PGUSER PGPASSWORD
 
           db_name=${each.key}
@@ -88,8 +88,11 @@ resource "aws_ecs_task_definition" "service_task" {
 
           # Check if database exists
           if ! psql -tAc "SELECT 1 FROM pg_database WHERE datname = '$${db_name}'" | grep -q 1; then
-            echo "Creating database $${db_name} with owner $${user_name}..."
-            psql -c "CREATE DATABASE $${db_name} WITH OWNER = $${user_name} ENCODING = 'UTF8' LC_COLLATE = 'C' LC_CTYPE = 'C' TEMPLATE = template0;"
+            echo "Creating database $${db_name}..."
+            psql -c "CREATE DATABASE $${db_name} ENCODING = 'UTF8' LC_COLLATE = 'C' LC_CTYPE = 'C' TEMPLATE = template0;"
+            echo "Assigning owner $${user_name} to database $${db_name}..."
+            psql -c "ALTER DATABASE $${db_name} OWNER TO $${user_name};"
+            echo "Created database $${db_name} and assigned owner $${user_name}!"
           else
             echo "Database $${db_name} already exists."
           fi
