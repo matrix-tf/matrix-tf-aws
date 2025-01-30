@@ -7,13 +7,11 @@ variable "alb_permitted_ips" {
 variable "aws_region" {
   description = "AWS region where resources will be deployed"
   type        = string
-  default     = "us-east-2"
 }
 
 variable "server_name" {
-  description = "The server name for the application"
+  description = "The server_name for the homeserver (i.e. 'example.com')"
   type        = string
-  default     = null
 }
 
 variable "aws_credentials" {
@@ -65,9 +63,9 @@ variable "services" {
   }))
 
   default = {
-    synapse  = { enabled = true, port = 8008, image = "matrixdotorg/synapse", version = "v1.121.1", health_check = "/health", profile = "synapse" }
+    synapse  = { enabled = true, port = 8008, image = "matrixdotorg/synapse", version = "v1.123.0", health_check = "/health", profile = "synapse" }
     discord  = { enabled = false, port = 29316, image = "dock.mau.dev/mautrix/discord", version = "v0.7.2", health_check = "/_matrix/mau/live", profile = "bridge" }
-    signal   = { enabled = false, port = 29317, image = "dock.mau.dev/mautrix/signal", version = "v0.7.4", health_check = "/_matrix/mau/live", profile = "bridge" }
+    signal   = { enabled = false, port = 29317, image = "dock.mau.dev/mautrix/signal", version = "v0.7.5", health_check = "/_matrix/mau/live", profile = "bridge" }
     telegram = { enabled = false, port = 29318, image = "dock.mau.dev/mautrix/telegram", version = "v0.15.2", health_check = "/_matrix/mau/live", profile = "bridge" }
     whatsapp = { enabled = false, port = 29319, image = "dock.mau.dev/mautrix/whatsapp", version = "v0.11.2", health_check = "/_matrix/mau/live", profile = "bridge" }
   }

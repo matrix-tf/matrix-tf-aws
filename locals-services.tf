@@ -6,14 +6,13 @@ locals {
 }
 
 locals {
-  server_name       = var.server_name != null ? var.server_name : aws_lb.application_lb.dns_name
-  server_name_regex = replace(local.server_name, ".", "\\.")
+  server_name_regex = replace(var.server_name, ".", "\\.")
 }
 
 # Synapse files
 locals {
   homeserver_yaml = templatefile("${path.module}/config_templates/synapse/homeserver.tftpl", {
-    server_name                = local.server_name
+    server_name                = var.server_name
     synapse_port               = var.services.synapse.port
     db_user                    = var.services.synapse.profile
     db_user_pw                 = aws_secretsmanager_secret_version.profile_user_password[var.services.synapse.profile].secret_string
@@ -38,7 +37,7 @@ locals {
   bridge_config_outputs = {
     for service_name, service_def in var.services :
     service_name => templatefile("${path.module}/config_templates/${service_name}/config.tftpl", merge({
-      server_name                = local.server_name
+      server_name                = var.server_name
       synapse_port               = var.services.synapse.port
       bridge_port                = service_def.port
       db_user                    = service_def.profile

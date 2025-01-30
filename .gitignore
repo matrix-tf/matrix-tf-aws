@@ -6,5 +6,4 @@ tfplan
 .terraform.lock.hcl
 .terraform.tfstate.lock.info
 .terraform/
-tls_cert/
 README.md
