@@ -22,6 +22,10 @@ variable "aws_credentials" {
     access_key = string
     secret_key = string
   })
+  default = {
+    access_key = null
+    secret_key = null
+  }
 }
 
 variable "telegram_app_registration" {
