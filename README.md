@@ -24,7 +24,7 @@ That's it!
 
 The services listed below are the only ones that are currently supported.
 
-**The service names cannot be modified as they correspond to included configuration files.**
+**_The service names cannot be modified as they correspond to included configuration files._**
 
 ## Example Usage
 
