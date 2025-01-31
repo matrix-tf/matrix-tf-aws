@@ -30,7 +30,7 @@ The services listed below are the only ones that are currently supported.
 
 ```
 module "matrix-tf-aws" {
-  source = "github.com/matrix-tf/matrix-tf-aws"
+  source = "github.com/matrix-tf/matrix-tf-aws/module"
 
   # Required - AWS region where resources will be deployed
   aws_region = "us-east-2"
