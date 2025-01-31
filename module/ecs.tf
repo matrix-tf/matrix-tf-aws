@@ -35,6 +35,11 @@ resource "aws_ecs_service" "service" {
     ConfigsHash = ""
   }
 
+  depends_on = [
+    aws_lb_listener_rule.bridge_forwarding,
+    aws_lb_target_group.service_target_group
+  ]
+
   lifecycle {
     ignore_changes = [
       desired_count,

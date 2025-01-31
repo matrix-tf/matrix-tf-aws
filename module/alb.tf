@@ -131,7 +131,7 @@ resource "aws_lb_listener_rule" "bridge_forwarding" {
   }
 
   listener_arn = aws_lb_listener.application_listener.arn
-  priority     = index(keys(var.services), each.key) + 3
+  priority     = index(sort([for k, v in var.services : k if v.enabled && v.profile == "bridge"]), each.key) + 3
 
   condition {
     http_header {
@@ -157,7 +157,7 @@ resource "aws_lb_listener_rule" "bridge_header_invalid_path" {
   priority = length([
     for service_name, service_def in var.services :
     service_name if service_def.enabled && service_def.profile == "bridge"
-  ]) + 4
+  ]) + 3
 
   condition {
     http_header {
