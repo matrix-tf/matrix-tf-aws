@@ -8,14 +8,14 @@ This Terraform module deploys a [Matrix](https://matrix.org/) protocol Homeserve
 - Aurora postgres cluster
 - Two S3 buckets
 - TLS certificate for your domain
-- Dynamically-generated tokens/passwords which are stored in Secrets Manager
+- Dynamically-generated tokens/passwords
 - and other resources to connect everything together
 
 ## Prior to Use
 
 Before using this module, you will need the following:
 
-1. A domain registered in Route 53 to use as your HS server_name (don't forget to verify your email address!)
+1. A domain registered in Route 53 to use as your Homeserver name (don't forget to verify your email address!)
 2. API ID and hash of a registered Telegram App (https://my.telegram.org/apps) (only if you plan to use the Telegram bridge)
 
 That's it!
