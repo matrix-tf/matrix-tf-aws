@@ -56,6 +56,10 @@ This module configures an **Application Load Balancer (ALB)** to route traffic t
 
 The below module declaration, by default, will deploy a homeserver only. Adjust the **services** variable to deploy some bridges as well. With everything enabled, your deployment will take about 10 minutes. Hey, not bad for a fully automated way to deploy your very own chat server!
 
+How are the homeserver and bridges configured? Once you run `terraform init` to initialize the module, you'll be able to review the configuration and registration files that are used.
+
+Don't worry - **_all secrets/tokens are dynamically generated_**.
+
 ```
 module "matrix-tf-aws" {
   source = "github.com/matrix-tf/matrix-tf-aws/module"
