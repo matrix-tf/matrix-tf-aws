@@ -6,4 +6,3 @@ tfplan
 .terraform.lock.hcl
 .terraform.tfstate.lock.info
 .terraform/
-README.md
