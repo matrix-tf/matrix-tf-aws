@@ -15,7 +15,7 @@ This Terraform module deploys a [Matrix](https://matrix.org/) protocol Homeserve
 
 Before using this module, you will need the following:
 
-1. A domain registered in Route 53 to use as your HS server_name
+1. A domain registered in Route 53 to use as your HS server_name (don't forget to verify your email address!)
 2. API ID and hash of a registered Telegram App (https://my.telegram.org/apps) (only if you plan to use the Telegram bridge)
 
 That's it!
@@ -26,7 +26,35 @@ The services listed below are the only ones that are currently supported.
 
 **_The service names cannot be modified as they correspond to included configuration files._**
 
+## Post Deployment
+
+### ALB Routing Overview
+
+This module configures an **Application Load Balancer (ALB)** to route traffic to:
+
+- **Well-Known Routes**
+- **Matrix Bridges**
+- **Matrix Homeserver**
+
+#### **🔹 Well-Known Routes**
+
+- **`/.well-known/matrix/client`** → Returns the homeserver and placeholder identity server configuration.
+- **`/.well-known/matrix/server`** → Returns the server name and port.
+
+#### **🔹 Bridge Provisioning API**
+
+- Bridge requests must include a `Bridge` HTTP header,
+- With a valid Bridge value: `discord`, `signal`, `telegram`, or `whatsapp`, and
+- Have a base path of `/_matrix/provision/*`;
+- Requests with an invalid or missing `Bridge` header return `404 Not Found`.
+
+#### **🔹 Homeserver API**
+
+- All other `/_matrix/*` requests without a `Bridge` HTTP header are routed to the Homeserver.
+
 ## Example Usage
+
+The below module declaration, by default, will deploy a homeserver only. Adjust the **services** variable to deploy some bridges as well. With everything enabled, your deployment will take about 10 minutes. Hey, not bad for a fully automated way to deploy your very own chat server!
 
 ```
 module "matrix-tf-aws" {
