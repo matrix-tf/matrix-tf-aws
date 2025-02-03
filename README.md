@@ -1,4 +1,14 @@
-## Matrix-TF-AWS Module
+# Matrix-TF-AWS Module
+
+![Fair: Warning](https://img.shields.io/badge/fair-warning-important.svg?style=for-the-badge)
+
+> Use of this module will cause the instantiation of actual cloud resources which cost money. It is the user's responsibility to monitor billing and adjust accordingly.
+>
+> Additionally, it is the user's responsibility to assess the overall security posture of the deployed resources and adjust as necessary. Suggestions and PRs welcome.
+
+---
+
+## Overview
 
 This Terraform module deploys a [Matrix](https://matrix.org/) protocol Homeserver + Bridges stack to your AWS account. At a high-level, the following resources are created during deployment (full list below):
 
